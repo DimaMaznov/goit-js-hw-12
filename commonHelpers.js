@@ -1,26 +1,26 @@
-import{a as _,S as B,i as d}from"./assets/vendor-f144e563.js";(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const r of document.querySelectorAll('link[rel="modulepreload"]'))a(r);new MutationObserver(r=>{for(const s of r)if(s.type==="childList")for(const n of s.addedNodes)n.tagName==="LINK"&&n.rel==="modulepreload"&&a(n)}).observe(document,{childList:!0,subtree:!0});function o(r){const s={};return r.integrity&&(s.integrity=r.integrity),r.referrerPolicy&&(s.referrerPolicy=r.referrerPolicy),r.crossOrigin==="use-credentials"?s.credentials="include":r.crossOrigin==="anonymous"?s.credentials="omit":s.credentials="same-origin",s}function a(r){if(r.ep)return;r.ep=!0;const s=o(r);fetch(r.href,s)}})();const R="43952869-c947639c32813e7ff22513d15",H="https://pixabay.com/api/",f=15;_.defaults.baseURL=H;const L=async(e,t=1)=>(await _.get("",{params:{key:R,q:e,image_type:"photo",orientation:"horizontal",safesearch:"true",per_page:f,page:t}})).data,b=e=>e.reduce((t,{tags:o,webformatURL:a,largeImageURL:r,likes:s,views:n,comments:M,downloads:q})=>t+`
-              <li class="gallery__item item-gallery">
-                  <a class="item-gallery__link" href="${r}">
-                      <img class="item-gallery__img" src="${a}" alt="${o}">
-                  </a>
-                  <ul class="item-gallery__data">
-                      <li class="item-gallery__data-item">
-                          <h2 class="item-gallery__subtitle">Likes</h2>
-                          <p class="item-gallery__counter">${s}</p>
-                      </li>
-                      <li class="item-gallery__data-item">
-                          <h2 class="item-gallery__subtitle">Views</h2>
-                          <p class="item-gallery__counter">${n}</p>
-                      </li>
-                      <li class="item-gallery__data-item">
-                          <h2 class="item-gallery__subtitle">Comments</h2>
-                          <p class="item-gallery__counter">${M}</p>
-                      </li>
-                      <li class="item-gallery__data-item">
-                          <h2 class="item-gallery__subtitle">Downloads</h2>
-                          <p class="item-gallery__counter">${q}</p>
-                      </li>
-                  </ul>
-              </li>
-          `,""),m=e=>{e.classList.add("is-hidden")},S=e=>{e.classList.remove("is-hidden")},P=e=>{e.classList.remove("is-hidden")},v=e=>{e.classList.add("is-hidden")},j=e=>{e.classList.add("is-disabled")},u=e=>{e.classList.remove("is-disabled")},p=document.querySelector(".js-gallery"),O=document.querySelector(".js-search-form"),c=document.querySelector(".js-search-form-submit-btn"),i=document.querySelector(".js-loader"),l=document.querySelector(".js-load-more-btn");let g="",h=1,y=0;const w=new B(".item-gallery__link",{captionsData:"alt",captionsDelay:250}),$=async e=>{e.preventDefault(),p.innerHTML="",h=1,v(l);const t=e.currentTarget;if(g=t.elements.searchword.value.trim(),g===""){d.error({message:"Sorry, there are no images matching your search query. Please try again!",position:"topRight"}),t.reset();return}try{j(c),S(i);const{hits:o,totalHits:a}=await L(g,h);if(a===0){u(c),d.error({message:"Sorry, there are no images matching your search query. Please try again!",position:"topRight"}),t.reset(),m(i);return}p.insertAdjacentHTML("beforeend",b(o)),w.refresh(),m(i),u(c),y=Math.ceil(a/f),y>1&&P(l)}catch{u(c),m(i),d.error({message:"Search params is not valid!",position:"topRight"}),t.reset();return}t.reset()};O.addEventListener("submit",$);const A=()=>{const o=document.querySelector(".gallery__item").getBoundingClientRect().height*2;window.scrollBy({top:o,left:0,behavior:"smooth"})},E=async e=>{try{v(l),S(i),h+=1;const{hits:t,totalHits:o}=await L(g,h);if(p.insertAdjacentHTML("beforeend",b(t)),w.refresh(),A(),m(i),y=Math.ceil(o/f),h<y)P(l);else{l.removeEventListener("click",E),d.info({message:"We're sorry, but you've reached the end of search results.",position:"topRight"});return}}catch{u(c),m(i),d.error({message:"Search params is not valid!",position:"topRight"}),form.reset();return}};l.addEventListener("click",E);
+import{a as L,S as w,i as a}from"./assets/vendor-b11e2a50.js";(function(){const r=document.createElement("link").relList;if(r&&r.supports&&r.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))i(e);new MutationObserver(e=>{for(const o of e)if(o.type==="childList")for(const p of o.addedNodes)p.tagName==="LINK"&&p.rel==="modulepreload"&&i(p)}).observe(document,{childList:!0,subtree:!0});function s(e){const o={};return e.integrity&&(o.integrity=e.integrity),e.referrerPolicy&&(o.referrerPolicy=e.referrerPolicy),e.crossOrigin==="use-credentials"?o.credentials="include":e.crossOrigin==="anonymous"?o.credentials="omit":o.credentials="same-origin",o}function i(e){if(e.ep)return;e.ep=!0;const o=s(e);fetch(e.href,o)}})();async function f(t,r=1){const s=new URLSearchParams({key:"43803497-a801e9cfe7ea9bdd19d306bb3",q:t,image_type:"photo",orientation:"horizontal",safesearch:!0,per_page:15,page:r});try{return(await L.get(`https://pixabay.com/api/?${s}`)).data}catch(i){throw console.error("Error fetching data:",i),i}}const c=document.querySelector(".list");let h;const y=t=>{const r=t.hits.map(s=>`
+      <li class="item-list">
+        <a href="${s.largeImageURL}" class="item-list-link">
+            <img class="item-list-img" src="${s.webformatURL}" alt="${s.tags}">
+        </a>
+        <div class='markup-info'>
+            <div class="item-list-info-text">
+                <h3 class="item-list-title">Likes</h3>
+                <p class="item-list-text">${s.likes}</p>
+            </div>
+            <div class="item-list-info-text">
+                <h3 class="item-list-title">Views</h3>
+                <p class="item-list-text">${s.views}</p>
+            </div>
+            <div class="item-list-info-text">
+                <h3 class="item-list-title">Comments</h3>
+                <p class="item-list-text">${s.comments}</p>
+            </div>
+            <div class="item-list-info-text">
+                <h3 class="item-list-title">Downloads</h3>
+                <p class="item-list-text">${s.downloads}</p>
+            </div>
+        </div>
+      </li>
+    `).join("");t.page===1?c.innerHTML=r:c.insertAdjacentHTML("beforeend",r),h?h.refresh():h=new w(".item-list-link",{captionsData:"alt",captionDelay:250,overlayOpacity:.8})},b=document.querySelector(".searchButton"),d=document.querySelector(".load-more"),g=document.querySelector(".input");let l="",m=1,n=0;const S=()=>{g.value=""},v=()=>{const t=document.querySelector(".loader");t.style.display="block"},u=()=>{const t=document.querySelector(".loader");t.style.display="none"},q=async t=>{if(t.preventDefault(),l=g.value.trim(),!l){a.error({title:"Error",message:"The search field cannot be empty! Please enter the search query!"});return}m=1,d.style.display="none",c.innerHTML="";try{v();const r=await f(l,m);u(),n=r.totalHits,y(r),n>15&&(d.style.display="block"),n===0&&a.error({title:"Error",message:"Sorry, there are no images matching your search query. Please try again!"})}catch{u(),a.error({title:"Error",message:"An error occurred while fetching data. Please try again later."})}S()},x=async()=>{m+=1;try{v();const t=await f(l,m);u(),y(t),c.childElementCount>=n&&(d.style.display="none",a.info({title:"End of Results",message:"We're sorry, but you've reached the end of search results."}));const{height:s}=document.querySelector(".item-list").getBoundingClientRect();window.scrollBy({top:s*2,behavior:"smooth"})}catch{u(),a.error({title:"Error",message:"An error occurred while loading more images. Please try again later."})}};b.addEventListener("click",q);d.addEventListener("click",x);
 //# sourceMappingURL=commonHelpers.js.map
