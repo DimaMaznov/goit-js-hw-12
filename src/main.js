@@ -1,209 +1,106 @@
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-
+import { searchPhotos } from './js/pixabay-api.js';
+import { markupInterface, listImg } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-import { fetchPhotos, PER_PAGE } from './js/pixabay-api.js';
-import { createMarkup } from './js/render-functions.js';
-
-const hideLoader = loaderEl => {
-  loaderEl.classList.add('is-hidden');
-};
-
-const showLoader = loaderEl => {
-  loaderEl.classList.remove('is-hidden');
-};
-
-const showLoadMoreBtn = loadMoreBtnEl => {
-  loadMoreBtnEl.classList.remove('is-hidden');
-};
-
-const hideLoadMoreBtn = loadMoreBtnEl => {
-  loadMoreBtnEl.classList.add('is-hidden');
-};
-
-const disableSearchFormSubmitBtn = searchFormSubmitBtnEl => {
-  searchFormSubmitBtnEl.classList.add('is-disabled');
-};
-
-const enableSearchFormSubmitBtn = searchFormSubmitBtnEl => {
-  searchFormSubmitBtnEl.classList.remove('is-disabled'); // Здесь добавлена пропущенная скобка
-};
-
-const galleryEl = document.querySelector('.js-gallery');
-const searchFormEl = document.querySelector('.js-search-form');
-const searchFormSubmitBtnEl = document.querySelector('.js-search-form-submit-btn');
-const loaderEl = document.querySelector('.js-loader');
-const loadMoreBtnEl = document.querySelector('.js-load-more-btn');
-
-// Search params
+const searchButton = document.querySelector('.searchButton');
+const loadMoreButton = document.querySelector('.load-more');
+const input = document.querySelector('.input');
 let query = '';
-let photosCurrentPage = 1;
-let totalPages = 0;
+let page = 1;
+let totalHits = 0;
 
-const lightbox = new SimpleLightbox('.item-gallery__link', {
-  captionsData: 'alt',
-  captionsDelay: 250,
-});
+const clearInput = () => {
+  input.value = '';
+};
 
-////////////////////////////////
-// -1- Search form submit function
-////////////////////////////////
-const onSearch = async event => {
+const showLoader = () => {
+  const loader = document.querySelector('.loader');
+  loader.style.display = 'block';
+};
+
+const hideLoader = () => {
+  const loader = document.querySelector('.loader');
+  loader.style.display = 'none';
+};
+
+const handleSearch = async (event) => {
   event.preventDefault();
-  galleryEl.innerHTML = '';
-  photosCurrentPage = 1;
+  query = input.value.trim();
 
-  // Hide load more btn
-  hideLoadMoreBtn(loadMoreBtnEl);
-
-  // Get query string
-  const form = event.currentTarget;
-  query = form.elements.searchword.value.trim();
-
-  // Check is empty query
-  if (query === '') {
+  if (!query) {
     iziToast.error({
-      message:
-        'Sorry, there are no images matching your search query. Please try again!',
-      position: 'topRight',
+      title: 'Error',
+      message: 'The search field cannot be empty! Please enter the search query!',
     });
-    form.reset();
     return;
   }
 
+  page = 1;
+  loadMoreButton.style.display = 'none';
+  listImg.innerHTML = '';
+
   try {
-    // Disable search form submit button
-    disableSearchFormSubmitBtn(searchFormSubmitBtnEl);
+    showLoader();
+    const data = await searchPhotos(query, page);
+    hideLoader();
+    totalHits = data.totalHits;
+    markupInterface(data);
 
-    // Show loader
-    showLoader(loaderEl);
+    if (totalHits > 15) {
+      loadMoreButton.style.display = 'block';
+    }
 
-    // Get photos data
-    const { hits, totalHits } = await fetchPhotos(query, photosCurrentPage);
-
-    // Check is empty query
     if (totalHits === 0) {
-      // Enable search form submit button
-      enableSearchFormSubmitBtn(searchFormSubmitBtnEl);
-
       iziToast.error({
-        message:
-          'Sorry, there are no images matching your search query. Please try again!',
-        position: 'topRight',
+        title: 'Error',
+        message: 'Sorry, there are no images matching your search query. Please try again!',
       });
-      form.reset();
-      hideLoader(loaderEl);
-      return;
-    }
-
-    // Render photos
-    galleryEl.insertAdjacentHTML('beforeend', createMarkup(hits));
-
-    lightbox.refresh();
-
-    // Hide loader
-    hideLoader(loaderEl);
-
-    // Enable search form submit button
-    enableSearchFormSubmitBtn(searchFormSubmitBtnEl);
-
-    totalPages = Math.ceil(totalHits / PER_PAGE);
-    if (totalPages > 1) {
-      // Show load more btn
-      showLoadMoreBtn(loadMoreBtnEl);
     }
   } catch (error) {
-    // Enable search form submit button
-    enableSearchFormSubmitBtn(searchFormSubmitBtnEl);
-
-    // Hide loader
-    hideLoader(loaderEl);
-
+    hideLoader();
     iziToast.error({
-      message: 'Search params is not valid!',
-      position: 'topRight',
+      title: 'Error',
+      message: 'An error occurred while fetching data. Please try again later.',
     });
-    form.reset();
-    return;
   }
 
-  // Reset search form
-  form.reset();
+  clearInput();
 };
 
-// Load search form submit
-searchFormEl.addEventListener('submit', onSearch);
-
-const smoothScrollOnLoadMore = () => {
-  const lastPhoto = document.querySelector('.gallery__item');
-  const photosHeight = lastPhoto.getBoundingClientRect().height;
-  // console.log(" photosHeight:", photosHeight)
-  const twoPhotosHeight = photosHeight * 2;
-  // console.log("twoPhotosHeight:", twoPhotosHeight)
-  window.scrollBy({
-    top: twoPhotosHeight,
-    left: 0,
-    behavior: 'smooth',
-  });
-  // window.scrollBy(0, 1000);
-  // window.scrollBy(0, window.innerHeight);
-};
-
-////////////////////////////////
-// -2- Load more btn press function
-////////////////////////////////
-const onLoadMorePress = async event => {
+const handleLoadMore = async () => {
+  page += 1;
+  
   try {
-    // Hide load more btn
-    hideLoadMoreBtn(loadMoreBtnEl);
+    showLoader();
+    const data = await searchPhotos(query, page);
+    hideLoader();
+    markupInterface(data);
 
-    // Show loader
-    showLoader(loaderEl);
+    const totalLoadedImages = listImg.childElementCount;
 
-    photosCurrentPage += 1;
-
-    // Get photos data
-    const { hits, totalHits } = await fetchPhotos(query, photosCurrentPage);
-
-    // Render photos
-    galleryEl.insertAdjacentHTML('beforeend', createMarkup(hits));
-
-    lightbox.refresh();
-
-    smoothScrollOnLoadMore();
-
-    // Hide loader
-    hideLoader(loaderEl);
-
-    totalPages = Math.ceil(totalHits / PER_PAGE);
-    if (photosCurrentPage < totalPages) {
-      // Show load more btn
-      showLoadMoreBtn(loadMoreBtnEl);
-    } else {
-      loadMoreBtnEl.removeEventListener('click', onLoadMorePress);
+    if (totalLoadedImages >= totalHits) {
+      loadMoreButton.style.display = 'none';
       iziToast.info({
+        title: 'End of Results',
         message: "We're sorry, but you've reached the end of search results.",
-        position: 'topRight',
       });
-      return;
     }
-  } catch (error) {
-    // Enable search form submit button
-    enableSearchFormSubmitBtn(searchFormSubmitBtnEl);
 
-    // Hide loader
-    hideLoader(loaderEl);
 
-    iziToast.error({
-      message: 'Search params is not valid!',
-      position: 'topRight',
+    const { height: cardHeight } = document.querySelector('.item-list').getBoundingClientRect();
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
     });
-    form.reset();
-    return;
+  } catch (error) {
+    hideLoader();
+    iziToast.error({
+      title: 'Error',
+      message: 'An error occurred while loading more images. Please try again later.',
+    });
   }
 };
 
-// Load more btn click
-loadMoreBtnEl.addEventListener('click', onLoadMorePress);
+searchButton.addEventListener('click', handleSearch);
+loadMoreButton.addEventListener('click', handleLoadMore);
