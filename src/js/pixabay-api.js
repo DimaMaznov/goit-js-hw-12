@@ -1,22 +1,25 @@
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
 
-function showLoader() {
-    const loader = document.querySelector('.loader');
-    loader.style.display = 'block';
-  }
-  
-  export function searchPhotos(input) {
-    showLoader(); 
-  
-    const searchParams = new URLSearchParams({
-      key: '43952869-c947639c32813e7ff22513d15',
-      q: input.value,
+
+const API_KEY = '43952869-c947639c32813e7ff22513d15'
+  const BASE_URL = 'https://pixabay.com/api/';
+export const PER_PAGE = 15;
+
+import axios from 'axios';
+
+axios.defaults.baseURL = BASE_URL;
+
+export const fetchPhotos = async (query, photosCurrentPage = 1) => {
+  const response = await axios.get('', {
+    params: {
+      key: API_KEY,
+      q: query,
       image_type: 'photo',
       orientation: 'horizontal',
-      safesearch: true,
-    });
-    const url = `https://pixabay.com/api/?${searchParams}`;
-  
-    return fetch(url);
-  }
+      safesearch: 'true',
+      per_page: PER_PAGE,
+      page: photosCurrentPage,
+    },
+  });
+
+  return response.data;
+};

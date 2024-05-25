@@ -1,44 +1,36 @@
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-
-export const listImg = document.querySelector('.list');
-let lightbox;
-
-export const markupInterface = (data) => {
-    const markup = data.hits.map((hit) => {
-    return `
-      <li class="item-list">
-        <a href="${hit.largeImageURL}" class="item-list-link">
-            <img class="item-list-img" src="${hit.webformatURL}" alt="${hit.tags}">
-        </a>
-        <div class='markup-info'>
-            <div class="item-list-info-text">
-                <h3 class="item-list-title">Likes</h3>
-                <p class="item-list-text">${hit.likes}</p>
-            </div>
-            <div class="item-list-info-text">
-                <h3 class="item-list-title">Views</h3>
-                <p class="item-list-text">${hit.views}</p>
-            </div>
-            <div class="item-list-info-text">
-                <h3 class="item-list-title">Comments</h3>
-                <p class="item-list-text">${hit.comments}</p>
-            </div>
-            <div class="item-list-info-text">
-                <h3 class="item-list-title">Downloads</h3>
-                <p class="item-list-text">${hit.downloads}</p>
-            </div>
-        </div>
-      </li>
-    `;
-}).join("");
-listImg.innerHTML = markup;
-
-lightbox = new SimpleLightbox('.item-list-link', {
-    captionsData: 'alt', 
-    captionDelay: 250 ,
-    overlayOpacity: 0.8,
-  });
-
-lightbox.refresh();
-};
+export const createMarkup = images => {
+    return images.reduce(
+      ( html, { tags, webformatURL, largeImageURL, likes, views, comments, downloads } ) => {
+        return (
+          html +
+          `
+              <li class="gallery__item item-gallery">
+                  <a class="item-gallery__link" href="${largeImageURL}">
+                      <img class="item-gallery__img" src="${webformatURL}" alt="${tags}">
+                  </a>
+                  <ul class="item-gallery__data">
+                      <li class="item-gallery__data-item">
+                          <h2 class="item-gallery__subtitle">Likes</h2>
+                          <p class="item-gallery__counter">${likes}</p>
+                      </li>
+                      <li class="item-gallery__data-item">
+                          <h2 class="item-gallery__subtitle">Views</h2>
+                          <p class="item-gallery__counter">${views}</p>
+                      </li>
+                      <li class="item-gallery__data-item">
+                          <h2 class="item-gallery__subtitle">Comments</h2>
+                          <p class="item-gallery__counter">${comments}</p>
+                      </li>
+                      <li class="item-gallery__data-item">
+                          <h2 class="item-gallery__subtitle">Downloads</h2>
+                          <p class="item-gallery__counter">${downloads}</p>
+                      </li>
+                  </ul>
+              </li>
+          `
+        );
+      },
+      ''
+    );
+  };
+  
